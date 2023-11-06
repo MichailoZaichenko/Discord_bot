@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+from token.py import token as tk
 
 # Указываем интенты для вашего бота
 intents = discord.Intents.default()
@@ -31,7 +32,7 @@ async def on_message(message):
     await message.channel.send(response_text)
 
 # Токен вашего бота, который нужно получить на https://discord.com/developers/applications
-token = 'MTE3MTE1NDk2OTA0MzQxNTA0MA.GuTN4L.x7c2LfzCsHfEgZp1tZCT5QSeoJfLk8tFy1IUsA'
+token = tk
 
 # Запускаем бота
 bot.run(token)
