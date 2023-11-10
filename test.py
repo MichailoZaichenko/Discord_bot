@@ -26,10 +26,23 @@ async def botic(ctx, arg):
     for i in range(10):
         await ctx.send(response_text)
 
-@bot.event
-async def on_message(message):
-    msg = message.content.lower()
-    if msg in hello_words:
-        await message.channel.send('Hi. What do you want?')
+# @bot.event
+# async def on_message(message):
+#     msg = message.content.lower()
+#     if msg in hello_words:
+#         await message.channel.send('Hi. What do you want?')
+
+# Удоление сообщений
+@bot.command(pass_context = True)
+async def clear(ctx, amount=100):
+    await ctx.channel.purge(limit = amount)
+
+# Удаление команд
+@bot.command(pass_context =True)
+async def hello(ctx, amount = 1):
+    await ctx.channel.purge(limit = amount)
+
+    author = ctx.message.author
+    await ctx.send(f'Hello {author.mention}')
 
 bot.run(token)
