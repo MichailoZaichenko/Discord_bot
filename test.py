@@ -7,6 +7,12 @@ intents.message_content = True
 # Задаём префикс и интенты
 bot = commands.Bot(command_prefix='>', intents=intents) 
 
+hello_words = ['hello', 'hi', ' privet', 'ky', "привет", "здарова"]
+
+@bot.event
+async def on_ready():
+    print('Bot connected')
+
 # С помощью декоратора создаём первую команду
 @bot.command(pass_context = True)
 async def botic(ctx, arg):
@@ -20,10 +26,10 @@ async def botic(ctx, arg):
     for i in range(10):
         await ctx.send(response_text)
 
-# @bot.command()
-# async def ping(message):
-#     print(f'Received message: {message.content}')
-#     response_text = 'бот!!' * 10
-#     await message.send(response_text)
+@bot.event
+async def on_message(message):
+    msg = message.content.lower()
+    if msg in hello_words:
+        await message.channel.send('Hi. What do you want?')
 
 bot.run(token)
