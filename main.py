@@ -2,6 +2,7 @@ import discord # Подключаем библиотеку
 from discord.ext import commands
 from tk import token
 import random
+import datetime
 
 intents = discord.Intents.default() # Подключаем "Разрешения"
 intents.message_content = True
@@ -51,6 +52,23 @@ async def help(ctx):
     emb.add_field(name='{}botic'.format( PREFIX ), value = "Shits some one you write")
 
     await ctx.send( embed = emb)
+
+# Shows current time
+@bot.command(pass_context = True)
+@commands.has_permissions(administrator = True)
+
+async def anounse(ctx, u_title = "You title", u_url = None, u_description = "Your description"):
+    emb = discord.Embed( title= f"{u_title}", description = f'{u_description}', colour = discord.Color.green(), url = f'{u_url}')
+
+    emb.set_author( name = bot.user.name, icon_url = bot.user.avatar )
+    emb.set_footer( text = ctx.author.name, icon_url= ctx.author.avatar )
+    # emb.set_image( url = 'https://magnit.rv.ua/upload/iblock/a82/a82054c2da691436ac03ee38d2c163c0.jpg' )
+    emb.set_thumbnail( url = 'https://c0.klipartz.com/pngpicture/744/783/gratis-png-cara-del-reloj-cuarto-s.png' )
+
+    now_date = datetime.datetime.now()
+    emb.add_field(name="Time", value='Time : {}'.format( now_date ))
+
+    await ctx.send(embed = emb)
 
 # Del messages
 @bot.command(pass_context = True)
