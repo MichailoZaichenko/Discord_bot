@@ -1,8 +1,8 @@
 import discord  # Подключаем библиотеку
 from discord.ext import commands
 import random
-import datetime
 from tk import token
+import datetime
 
 intents = discord.Intents.default()  # Подключаем "Разрешения"
 intents.message_content = True
