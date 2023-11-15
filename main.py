@@ -157,9 +157,5 @@ async def kick(ctx, member: discord.Member, *, reason=None):
   await member.kick(reason=reason)
   await ctx.send(f'kick user {member.mention}')
 
-<<<<<<< HEAD
 bot.run(token)
-=======
-bot.run(
-    'MTE3MTUxNDU5MjkwMDQzMTg4Mg.G8zwZt.R7Tl1xbf2vPxUQ0x_QhXQw5efDFGz0VPWDGp2w')
->>>>>>> d9e1569cac6461d6d9a29370e4b8191927d82190
+
