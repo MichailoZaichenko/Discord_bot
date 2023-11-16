@@ -1,8 +1,10 @@
 import discord  # Подключаем библиотеку
 from discord.ext import commands
 import random
-from tk import token
+import keep_alive
 import datetime
+from tk import token
+import g4f
 
 intents = discord.Intents.default()  # Подключаем "Разрешения"
 intents.message_content = True
@@ -33,10 +35,13 @@ async def botic(ctx, arg):
     # response_text = f'{author.mention} + arg бот!!' * 10
     # response_text = f'{author.mention}' + arg
     random_option = random.choice(yaki_ti_Woddy)
+    if arg.lower() in [
+        'micha', 'миша', 'misha', 'міша', 'm1sha', 'мішаня', 'mishanya', 'mishaloh', 'mishaBomjik', 'mishapozornik', 'mishalosharik']:
+      arg = "Бодя"
     response_text = f'{arg} {random_option}!! \n'
   except TypeError:
     response_text = 'Введи текст після команди >botic'
-  for i in range(10):
+  for i in range(5):
     await ctx.send(response_text)
 
 
@@ -58,6 +63,8 @@ async def help(ctx):
   emb.add_field(name='{}kick'.format(PREFIX), value="Kick from the server")
   emb.add_field(name='{}ban'.format(PREFIX), value=' Ban from server')
   emb.add_field(name='{}unban'.format(PREFIX), value=' Unban')
+  emb.add_field(name='{}mute'.format(PREFIX), value='Gives mute role')
+  emb.add_field(name='{}unmute'.format(PREFIX), value='Remuve mute role')
   emb.add_field(name='{}botic'.format(PREFIX),
                 value="Shits some one you write")
   emb.add_field(
@@ -108,6 +115,7 @@ async def anounse(
     await ctx.channel.purge(limit=1)
     await ctx.send(embed=emb)
 
+
 # Del messages
 @bot.command(pass_context=True)
 @commands.has_permissions(administrator=True)
@@ -128,9 +136,18 @@ async def hello(ctx, amount=1):
 @bot.command(pass_context=True)
 @commands.has_permissions(administrator=True)
 async def ban(ctx, member: discord.Member, *, reason=None):
+  emb = discord.Embed(title="BAN", color=discord.Color.red())
   await ctx.channel.purge(limit=1)
+
   await member.ban(reason=reason)
-  await ctx.send(f'ban user {member.mention}')
+
+  emb.set_author(name=member.name, icon_url=member.avatar)
+  emb.set_thumbnail(url='https://cdn3.emoji.gg/emojis/2793_BAN.png')
+  now_date = datetime.datetime.now()
+  emb.add_field(name="Banned",
+                value='On {}:'.format(now_date) +
+                "banned user: {}".format(member.mention))
+  await ctx.send(embed=emb)
 
 
 # UnBan
@@ -138,15 +155,19 @@ async def ban(ctx, member: discord.Member, *, reason=None):
 @commands.has_permissions(administrator=True)
 async def unban(ctx, *, member):
   await ctx.channel.purge(limit=1)
-  # banned users list
-  banned_users = await ctx.guild.bans()
-  # user from list
-  for ban_entry in banned_users:
+  member_name, member_discriminator = member.split('#')
+
+  # Loop over the banned users asynchronously
+  async for ban_entry in ctx.guild.bans():
     user = ban_entry.user
-    # unban user
-    await ctx.guild.unban(user)
-    await ctx.send(f'unban user {member.mention}')
-    return
+
+    if (user.name, user.discriminator) == (member_name, member_discriminator):
+      await ctx.guild.unban(user)
+      await ctx.send(f'Unbanned user {user.mention}')
+      return
+
+  # If the user was not found in the banned users list
+  await ctx.send(f'User {member} is not in the ban list!')
 
 
 # Kick
@@ -157,5 +178,52 @@ async def kick(ctx, member: discord.Member, *, reason=None):
   await member.kick(reason=reason)
   await ctx.send(f'kick user {member.mention}')
 
-bot.run(token)
 
+# Mute
+# Mute
+@bot.command(pass_context=True)
+@commands.has_permissions(administrator=True)
+async def mute(ctx, member: discord.Member, *, reason=None):
+    mute_role = discord.utils.get(ctx.guild.roles, name='Muted')
+
+    # If the Muted role doesn't exist, create it
+    if not mute_role:
+        mute_role = await ctx.guild.create_role(name='Muted')
+
+        for channel in ctx.guild.channels:
+            await channel.set_permissions(mute_role, speak=False, send_messages=False, read_message_history=True, read_messages=False)
+
+    await member.add_roles(mute_role, reason=reason)
+    await ctx.send(f'Muted {member.mention} for reason: {reason}')
+
+# To unmute the user
+@bot.command(pass_context=True)
+@commands.has_permissions(administrator=True)
+async def unmute(ctx, member: discord.Member, *, reason=None):
+    mute_role = discord.utils.get(ctx.guild.roles, name='Muted')
+    
+    if mute_role in member.roles:
+        await member.remove_roles(mute_role, reason=reason)
+        await ctx.send(f'Unmuted {member.mention}')
+    else:
+        await ctx.send(f'The user {member.mention} is not muted.')
+
+# Answer any question(Chat GPT)
+@bot.command(pass_context=True)
+@commands.has_permissions(administrator=True)
+async def chat(ctx, *, message: str):
+    user_id = ctx.author.id  # Assuming you have a specific user ID to respond to
+
+    if ctx.message.author.id != user_id:
+        await ctx.send("This bot is not for public but private use only.")
+    else:
+        # Assuming g4f is a previously initialized API client for OpenAI or similar service
+        response = g4f.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[{"role": "user", "content": message}],
+        )
+        await ctx.send(response)
+
+keep_alive.keep_alive()
+
+bot.run(token)
