@@ -7,6 +7,7 @@ import g4f
 from time import sleep
 import requests
 from PIL import Image, ImageFont, ImageDraw
+from discord import app_commands
 
 intents = discord.Intents.default()  # Подключаем "Разрешения"
 intents.message_content = True
@@ -112,24 +113,21 @@ async def on_member_join(member):
       )
 
 
-# С помощью декоратора создаём первую команду
-@bot.command(pass_context=True)
-async def botic(ctx, arg):
+# botic
+@bot.tree.command(name='botic')
+@app_commands.describe(who = "Who you want to shit")
+async def botic(interaction: discord.Interaction, who: str):
   try:
-    author = ctx.message.author
-    # response_text = f'{author.mention} + arg бот!!' * 10
-    # response_text = f'{author.mention}' + arg
     random_option = random.choice(yaki_ti_Woddy)
-    if arg.lower() in [
-        'micha', 'миша', 'misha', 'міша', 'm1sha', 'мішаня', 'mishanya',
-        'mishaloh', 'mishaBomjik', 'mishapozornik', 'mishalosharik'
-    ]:
-      arg = "Бодя"
-    response_text = f'{arg} {random_option}!! \n'
+    if who.lower() in [
+      'micha', 'миша', 'misha', 'міша', 'm1sha', 'мішаня', 'mishanya',
+      'mishaloh', 'mishaBomjik', 'mishapozornik', 'mishalosharik'
+    ]: 
+      who = "Бодя"
+    response_text = f'{who} {random_option}!! \n'
   except TypeError:
-    response_text = 'Введи текст після команди >botic'
-  for i in range(5):
-    await ctx.send(response_text)
+    response_text = 'Введи текст після команди /botic'
+  await interaction.response.send_message(response_text*5)
 
 
 # @bot.event
