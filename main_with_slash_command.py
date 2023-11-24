@@ -117,7 +117,8 @@ bad_words = [
     'проебаться',
     'ссанина',
     'засранец',
-    'мудозвон'
+    'мудозвон',
+    'ебал'
 ]
 
 
@@ -240,7 +241,8 @@ async def on_member_join(member):
       )
 
 # Slash commands
-@bot.tree.command(name='help')
+# help command
+@bot.tree.command(name='help', description="Discribs all command on server")
 async def hlep(interaction: discord.Interaction):
     emb = discord.Embed(title="Navigation by commands", color=discord.Color.blue())
     
@@ -264,8 +266,80 @@ async def hlep(interaction: discord.Interaction):
 
     await interaction.response.send_message(embed=emb)
 
-# botic
-@bot.tree.command(name='botic')
+# polling 
+@bot.tree.command(name="poll", description="Creates a poll with up to 5 options. (Requires Manage Messages Permission)")
+@app_commands.checks.has_permissions(manage_messages=True)
+@app_commands.describe(question="What is the question the poll is gonna be asking?", option1="1st option that can be chosen", option2="2nd option that can be chosen", option3="3rd option that can be chosen", option4="4th option that can be chosen",option5="5th option that can be chosen", role="Which role to ping in the pole?")
+async def poll(interaction: discord.Interaction, question: str, option1: str, option2: str, option3:str=None, option4:str=None, option5:str=None, role:discord.Role=None):
+    await interaction.response.send_message("Creating poll...", ephemeral=True)
+    try:
+        listen = [option1, option2, option3, option4, option5]
+        yonice = []
+        for i in listen:
+            if i != None:
+                yonice.append(i)
+        if role == None:
+            if len(yonice) == 2:
+                emb=discord.Embed(color=discord.Colour.blurple(), title=f"{question}", description=f"Option 1: {yonice[0]}\nOption 2: {yonice[1]}")
+                msg=await interaction.channel.send(embed=emb)
+                await msg.add_reaction("1️⃣")
+                await msg.add_reaction("2️⃣")
+            elif len(yonice) == 3:
+                emb=discord.Embed(color=discord.Colour.blurple(), title=f"{question}", description=f"Option 1: {yonice[0]}\nOption 2: {yonice[1]}\nOption 3: {yonice[2]}")
+                msg=await interaction.channel.send(embed=emb)
+                await msg.add_reaction("1️⃣")
+                await msg.add_reaction("2️⃣") 
+                await msg.add_reaction("3️⃣")
+            elif len(yonice) == 4:
+                emb=discord.Embed(color=discord.Colour.blurple(), title=f"{question}", description=f"Option 1: {yonice[0]}\nOption 2: {yonice[1]}\nOption 3: {yonice[2]}\nOption 4: {yonice[3]}")
+                msg=await interaction.channel.send(embed=emb)
+                await msg.add_reaction("")
+                await msg.add_reaction("2️⃣") 
+                await msg.add_reaction("3️⃣")
+                await msg.add_reaction("4️⃣")
+            elif len(yonice) == 5:
+                emb=discord.Embed(color=discord.Colour.blurple(), title=f"{question}", description=f"Option 1: {yonice[0]}\nOption 2: {yonice[1]}\nOption 3: {yonice[2]}\nOption 4: {yonice[3]}\nOption 5: {yonice[4]}")
+                msg=await interaction.channel.send(embed=emb)
+                await msg.add_reaction("1️⃣")
+                await msg.add_reaction("2️⃣") 
+                await msg.add_reaction("3️⃣")
+                await msg.add_reaction("4️⃣")
+                await msg.add_reaction("5️⃣")     
+        else:
+            if len(yonice) == 2:
+                emb=discord.Embed(color=discord.Colour.blurple(), title=f"{question}", description=f"Option 1: {yonice[0]}\nOption 2: {yonice[1]}")
+                msg=await interaction.channel.send(f"{role.mention}", embed=emb)
+                await msg.add_reaction("1️⃣")
+                await msg.add_reaction("2️⃣")
+            elif len(yonice) == 3:
+                emb=discord.Embed(color=discord.Colour.blurple(), title=f"{question}", description=f"Option 1: {yonice[0]}\nOption 2: {yonice[1]}\nOption 3: {yonice[2]}")
+                msg=await interaction.channel.send(f"{role.mention}", embed=emb)
+                await msg.add_reaction("1️⃣")
+                await msg.add_reaction("2️⃣") 
+                await msg.add_reaction("3️⃣")
+            elif len(yonice) == 4:
+                emb=discord.Embed(color=discord.Colour.blurple(), title=f"{question}", description=f"Option 1: {yonice[0]}\nOption 2: {yonice[1]}\nOption 3: {yonice[2]}\nOption 4: {yonice[3]}")
+                msg=await interaction.channel.send(f"{role.mention}", embed=emb)
+                await msg.add_reaction("1️⃣")
+                await msg.add_reaction("2️⃣") 
+                await msg.add_reaction("3️⃣")
+                await msg.add_reaction("4️⃣")
+            elif len(yonice) == 5:
+                emb=discord.Embed(color=discord.Colour.blurple(), title=f"{question}", description=f"Option 1: {yonice[0]}\nOption 2: {yonice[1]}\nOption 3: {yonice[2]}\nOption 4: {yonice[3]}\nOption 5: {yonice[4]}")
+                msg=await interaction.channel.send(f"{role.mention}", embed=emb)
+                await msg.add_reaction("1️⃣")
+                await msg.add_reaction("2️⃣") 
+                await msg.add_reaction("3️⃣")
+                await msg.add_reaction("4️⃣")
+                await msg.add_reaction("5️⃣")
+        await interaction.delete_original_response()
+    except Exception as e:
+        print(e)
+        await interaction.delete_original_response()
+        await interaction.followup.send("An error occured, try again later.", ephemeral=True)
+
+# Botic
+@bot.tree.command(name="botic", description="Shits someone you want")
 @app_commands.describe(who = "Who you want to shit")
 async def botic(interaction: discord.Interaction, who: str):
   try:
@@ -282,22 +356,22 @@ async def botic(interaction: discord.Interaction, who: str):
 
 # Del messages
 # The following transformed code with slash commands:
-@bot.tree.command(name='clear')
+@bot.tree.command(name='clear', description="Clears messages in the quantity you want")
 @app_commands.describe(amount="Number of messages to delete")
 @app_commands.checks.has_permissions(administrator=True)
 async def clear(interaction: discord.Interaction, amount: int):
     await interaction.channel.purge(limit=amount)
-    await interaction.response.send_message(f"Cleared {amount} messages", ephemeral=True)
+    await interaction.response.send_message(embed=discord.Embed(description=f"Cleared {amount} messages"), ephemeral=True)
 
 # Shows current anounsment
-@bot.tree.command(name='anounse')
+@bot.tree.command(name='announce', description="Make an announcement for whole server")
 @app_commands.describe(
   u_title="Your title",
   u_url="The URL you want to share",
   img_url="The image URL you want to display",
   u_description="Your description"
 )
-async def anounse(
+async def announce(
         interaction: discord.Interaction,
         u_title: str = "You title",
         u_url: str = 'https://www.youtube.com/watch?v=y25k0SImB8Y&ab_channel=Villeza',
@@ -331,7 +405,7 @@ async def anounse(
         await interaction.response.send_message(embed=emb)
 
 # Hello to user
-@bot.tree.command(name='hello')
+@bot.tree.command(name='hello', description="Greats anyone")
 @app_commands.describe(amount="The number of messages to delete")
 async def hello(interaction: discord.Interaction, amount: int = 1):
     await interaction.channel.purge(limit=amount)
@@ -341,7 +415,7 @@ async def hello(interaction: discord.Interaction, amount: int = 1):
 
 
 # Send an anonymous private message author
-@bot.tree.command(name='private')
+@bot.tree.command(name='private', description="Send private information to author")
 async def private(interaction: discord.Interaction):
   author = interaction.user
   embed = discord.Embed(title="Private Information", color=discord.Color.blue())
@@ -359,7 +433,7 @@ async def private(interaction: discord.Interaction):
 
 
 # Send an anonymous private message to a member with embed
-@bot.tree.command(name='anonymous_whisper')
+@bot.tree.command(name='anonymous_whisper', description="Send private message to a member")
 @app_commands.describe(member="The member to send the message to", message="The message to send")
 async def anonymous_whisper(interaction: discord.Interaction, member: discord.Member, message: str = "Hello"):
     try:
@@ -371,7 +445,7 @@ async def anonymous_whisper(interaction: discord.Interaction, member: discord.Me
 
 
 # Ban
-@bot.tree.command(name='ban')
+@bot.tree.command(name='ban', description="Ban a member")
 @app_commands.describe(member='The member to ban', reason='The reason for the ban')
 @app_commands.default_permissions(administrator=True)
 @app_commands.guild_only()
@@ -408,7 +482,7 @@ async def ban(interaction: discord.Interaction, member: discord.Member, reason: 
 
 
 # Kick with embed
-@bot.tree.command(name='kick')
+@bot.tree.command(name='kick', description="Kick a member")
 @app_commands.describe(member="Member to kick", reason="Reason for kicking")
 @app_commands.default_permissions(administrator=True)
 @app_commands.guild_only()
@@ -427,7 +501,7 @@ async def kick(interaction: discord.Interaction, member: discord.Member, reason:
 
 
 # Mute
-@bot.tree.command(name='mute')
+@bot.tree.command(name='mute', description="Mute a member")
 @app_commands.describe(member="Member to mute", reason="Reason for muting")
 @app_commands.default_permissions(administrator=True)
 async def mute(interaction: discord.Interaction, member: discord.Member, reason: str = "No reason provided"):
@@ -457,7 +531,7 @@ async def mute(interaction: discord.Interaction, member: discord.Member, reason:
 
 
 # To unmute the user
-@bot.tree.command(name='unmute')
+@bot.tree.command(name='unmute', description="Unmute a member")
 @app_commands.default_permissions(administrator=True)
 @app_commands.describe(member="Member to unmute", reason="Reason for unmuting")
 async def unmute(interaction: discord.Interaction, member: discord.Member, reason: str = None):
@@ -485,8 +559,8 @@ async def unmute(interaction: discord.Interaction, member: discord.Member, reaso
             color=discord.Color.red())
         await interaction.response.send_message(embed=embed)
 
-
-@bot.tree.command(name='chat')
+# Chat GPT
+@bot.tree.command(name='chat', description="Chat with the CHAT GPT")
 @app_commands.describe(message="Enter the message you want to chat about.")
 @app_commands.default_permissions(administrator=True)
 async def chat(interaction: discord.Interaction, message: str):
@@ -511,8 +585,10 @@ async def chat(interaction: discord.Interaction, message: str):
         await interaction.response.send_message(embed=embed)
 
 
+
+
 # User card with fetched user data
-@bot.tree.command(name='card_user')
+@bot.tree.command(name='card_user', description="Get a user card information")
 @app_commands.describe(member="The member you want to view information of")
 async def card_user(interaction: discord.Interaction, member: discord.Member = None):
     member = member or interaction.user  # Default to the interaction user if no member is provided
