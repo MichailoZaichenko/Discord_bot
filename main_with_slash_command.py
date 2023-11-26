@@ -1,4 +1,5 @@
 import discord
+from discord import voice_client
 from discord.app_commands.commands import describe  # Подключаем библиотеку
 from discord.ext import commands
 import random
@@ -10,6 +11,8 @@ from time import sleep
 import requests
 from PIL import Image, ImageFont, ImageDraw
 from discord import app_commands
+from discord.utils import get
+from discord import FFmpegPCMAudio
 
 # add prefix
 PREFIX = '>'
@@ -213,8 +216,8 @@ async def on_message(message):
 # Bot commands on join member
 @bot.event
 async def on_member_join(member):
-  welcome_channel_id = 1173351967150575689  # ID of the welcome channel
-  default_role_id = 1175087448464838666  # ID of the default role to assign
+  welcome_channel_id = 1178280339605561435  # ID of the welcome channel
+  default_role_id = 1178280478114074654  # ID of the default role to assign
 
   # Fetch the channel and role using discord.py utility functions
   channel = bot.get_channel(welcome_channel_id)
@@ -224,14 +227,17 @@ async def on_member_join(member):
     try:
       await member.add_roles(role)
       embed = discord.Embed(
-          description=
-          f'Користувач ``{member.display_name}``, Запригує до нас!',
+          title="Welcome!",
+          description=f'User **{member.display_name}** has joined us!',
           color=0x00ff00)
       embed.set_thumbnail(url=member.avatar)
-      # await clear(*, 1)
+      embed.add_field(name="Welcome aboard", value=f"Make sure to check the rules and have a great time!", inline=False)
+      embed.set_footer(text="Member joined", icon_url=member.guild.icon)
+      embed.timestamp = datetime.datetime.utcnow()  # Include a timestamp (optional)
+      
       await channel.send(embed=embed)
     except Exception as e:
-      print(f"An error occurred while adding role or sending a message: {e}")
+        print(f"An error occurred while adding role or sending a message: {e}")
   else:
     if channel is None:
       print(f"Channel with ID {welcome_channel_id} not found.")
@@ -583,9 +589,81 @@ async def chat(interaction: discord.Interaction, message: str):
         embed = discord.Embed(color=discord.Color.blue())
         embed.add_field(name="Response", value=response, inline=False)
         await interaction.response.send_message(embed=embed)
+      
+# Voice bot
+@bot.tree.command(name="join", description="Join the voice channel of the command invoker.")
+async def slash_join(interaction: discord.Interaction):
+    global voice_client
+    channel = interaction.user.voice.channel
+    if channel is not None:
+        voice_client = discord.utils.get(bot.voice_clients, guild=interaction.guild)
+
+        if voice_client and voice_client.is_connected():
+            await voice_client.move_to(channel)
+        else:
+            voice_client = await channel.connect()
+        await interaction.response.send_message(f"Joined {channel.name}")
+    else:
+        await interaction.response.send_message("You are not connected to a voice channel.")
+
+# @bot.command(pass_context=True)
+# async def join(ctx):
+#     if(ctx.author.voice):
+#         channel = ctx.message.author.voice.channel
+#         voice = await channel.connect()
+#         source = FFmpegPCMAudio('Recording.wav')
+#         player = voice.play(source)
+#     else:
+#       await ctx.send("You are not connected to a voice channel.")
+
+@bot.tree.command(name="leave", description="Make the bot leave the voice channel")
+async def leave(interaction: discord.Interaction):
+    if interaction.user.voice:
+        voice_client = discord.utils.get(bot.voice_clients, guild=interaction.guild)
+
+        if voice_client and voice_client.is_connected():
+            await voice_client.disconnect()
+            await interaction.response.send_message(f"Left the channel '{interaction.user.voice.channel.name}'")
+        else:
+            await interaction.response.send_message(f"{interaction.user.name}, you are not connected to a voice channel.")
+    else:
+        await interaction.response.send_message(f"{interaction.user.name}, you are not in a voice channel.")
 
 
+# ... (assuming there's some other code that defines bot and other necessary stuff)
 
+# @bot.tree.command(name="play", description="Play an M4A file in the voice channel")
+# @app_commands.describe(m4a_file="The name of the M4A file to play")
+# async def slash_play(interaction: discord.Interaction, m4a_file: str):
+#     # Check if the user is connected to a voice channel
+#     voice_channel = interaction.user.voice.channel if interaction.user.voice else None
+#     if voice_channel is None:
+#         await interaction.response.send_message("You are not connected to a voice channel.")
+#         return
+
+#     # Get the voice client for the guild
+#     voice_bot = discord.utils.get(bot.voice_clients, guild=interaction.guild)
+
+#     # Connect to the channel if not already connected or if in a different channel
+#     if voice_bot is None or voice_bot.channel != voice_channel:
+#         if voice_bot is not None:
+#             await voice_bot.disconnect()
+#         voice_bot = await voice_channel.connect()
+
+#     # Check if the voice client is already playing a file
+#     if voice_bot.is_playing():
+#         await interaction.response.send_message("Already playing a file.")
+#         return
+
+#     # Construct the file path
+#     file_path = f"./{m4a_file}.m4a"
+
+#     # Setup the audio source (using FFmpeg)
+#     audio_source = FFmpegPCMAudio(file_path)
+
+#     # Play the audio source
+#     voice_bot.play(audio_source)
+#     await interaction.response.send_message(f"Now playing: {m4a_file}")
 
 # User card with fetched user data
 @bot.tree.command(name='card_user', description="Get a user card information")
